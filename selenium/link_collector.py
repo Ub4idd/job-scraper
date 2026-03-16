@@ -1,44 +1,47 @@
-# link_collector.py
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-import time
 import csv
 import os
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
-print("Starting the Selenium Robot...")
+# Setup paths to save in data/raw
+raw_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data/raw'))
+os.makedirs(raw_dir, exist_ok=True)
+csv_path = os.path.join(raw_dir, 'job_links.csv')
 
-# 1. Open Chrome automatically
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+# The 3 required sources
+urls_to_scrape = [
+    "https://boards.greenhouse.io/reddit",
+    "https://boards.greenhouse.io/duolingo",
+    "https://boards.greenhouse.io/figma"
+]
 
-# 2. Go to an approved public job board (Reddit's Greenhouse board) [cite: 21, 24]
-url = "https://boards.greenhouse.io/reddit" 
-print(f"Opening website: {url}")
-driver.get(url)
+driver = webdriver.Chrome()
+all_job_links = []
+seen_links = set() # Prevents duplicates
 
-# Wait 3 seconds to let the page fully load
-time.sleep(3)
+for url in urls_to_scrape:
+    print(f"Scanning: {url}")
+    driver.get(url)
+    time.sleep(4) # Wait for jobs to load on screen
 
-# 3. Find and collect all the job detail links [cite: 31]
-job_links = []
-elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='/jobs/']")
+    # Grab all links and filter for job postings
+    elements = driver.find_elements(By.TAG_NAME, "a")
+    for el in elements:
+        try:
+            href = el.get_attribute("href")
+            if href and "/jobs/" in href and href not in seen_links:
+                all_job_links.append({'Job URL': href})
+                seen_links.add(href)
+        except Exception:
+            pass
 
-for element in elements:
-    link = element.get_attribute("href")
-    if link not in job_links:
-        job_links.append(link)
-
-print(f"Success! Found {len(job_links)} job links.")
-
-# 4. Save these links to your intermediate raw file [cite: 45]
-output_path = '../data/raw/job_links.csv'
-with open(output_path, 'w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Job URL'])
-    for link in job_links:
-        writer.writerow([link])
-
-# Close the browser when finished
 driver.quit()
-print("Links saved to data/raw/job_links.csv! Phase 2 is complete.")
+
+# Save to CSV
+with open(csv_path, 'w', newline='', encoding='utf-8') as file:
+    writer = csv.DictWriter(file, fieldnames=['Job URL'])
+    writer.writeheader()
+    writer.writerows(all_job_links)
+
+print(f"Successfully saved {len(all_job_links)} links to job_links.csv!")

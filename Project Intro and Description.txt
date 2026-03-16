@@ -1,0 +1,14 @@
+Project Description: Automated Job Market Scraper & AnalyzerThis project is an automated, end-to-end data extraction and analysis pipeline designed to monitor hiring trends by collecting public job listings. It simulates how modern organizations track workforce demands using a two-part web automation strategy.
+
+The Technical Pipeline:Browser Automation (Selenium): The system uses Selenium to simulate real-user browser actions on dynamic, public job boards (such as Greenhouse).
+
+ It searches for roles, waits for the pages to load, and harvests the raw job detail URLs into an intermediate file.
+
+Data Extraction (Scrapy): The collected URLs are then fed directly into a Scrapy spider. Scrapy efficiently visits every single link and extracts structured data fields, including the job title, company name, location, and required skills.
+
+Data Analysis (Pandas): The cleaned dataset is exported to a CSV file and processed using a Python script. This generates a business-insight report that answers practical workforce questions, such as identifying the most in-demand skills, the locations with the highest number of openings, and the most common job titles .
+
+Professional Practices & Compliance:
+The entire project was managed using a professional Git branching strategy, utilizing main, develop, and feature branches with a pull-request workflow . 
+
+Additionally, the scraper strictly adheres to ethical data collection constraints by targeting only publicly available pages, avoiding authentication bypasses, and respecting the host website's resources.S
