@@ -37,3 +37,5 @@ To run this project from scratch, execute the following commands in order:
 **1. Collect Links (Selenium)**
 ```bash
 python selenium/link_collector.py
+## Future Improvements
+* Set up an automated cron job to run the scraper weekly.
